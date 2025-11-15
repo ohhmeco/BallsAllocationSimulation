@@ -1,0 +1,17 @@
+
+--- 1. Esperimenti Standard (M=100, N_MAX=10000, T=30) ---
+--- 2. Esperimenti b-Batched (T=30) ---
+--- 3. Esperimenti con Query Binarie (T=30) ---
+
+--- Sumup ---
+Strategy                       Medium Gap (n=10000)
+------------------------------------------
+(1+0.2)-Choice                      12.07
+(1+0.5)-Choice                       4.40
+(1+0.8)-Choice                       2.43
+1-Choice                            26.13
+2-Choice                             1.83
+2-Choice (b=100/m)                   3.30
+2-Choice (b=1000/m)                 11.77
+2-Choice (k=1 Query)                 6.60
+2-Choice (k=2 Query)                 3.73

@@ -1,0 +1,156 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[english]{babel}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{geometry}
+
+\geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+}
+
+\sisetup{
+    round-mode = places,
+    round-precision = 2,
+    table-format = 2.2,
+    table-align-text-after = false,
+    group-separator = {}
+}
+
+\title{Analysis of Balls into Bins Allocation Strategies}
+\author{Randomized Algorithms Assessment}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+This document presents the results of a simulation comparing various randomized strategies for the Balls into Bins problem in a heavy-loaded scenario ($n=M^2$). The goal 
+is to evaluate how limiting the decision-making process (reduced choice as $1$-Choice , partial knowledge like $(1+\beta)$-Choice or Binary Queries, or delayed information 
+such as in the $b$-Batched case) affects the average maximum load, defined as the \textbf{Gap} ($\bar{G}_n$). The simulation was run with $M=100$ bins and $N_{MAX}=10,000$ balls, 
+with $T=30$ repetitions for averaging the gap through different experiments.
+
+\section{Experimental Setup}
+
+The simulation parameters are defined as follows:
+\begin{itemize}
+    \item \textbf{Number of Bins ($M$)}: 100
+    \item \textbf{Maximum Number of Balls ($N_{MAX}$)}: 10,000 ($M^2$)
+    \item \textbf{Number of Runs ($T$)}: 30
+\end{itemize}
+
+The Gap ($\bar{G}_n$) is calculated as the maximum load minus the average load: $\bar{G}_n = \max(X_i) - n/M$. The final results are summarized at $n=N_{MAX}=10,000$ and in file named "output" present in the project's main directory.
+
+\section{Results: Comparative Analysis of Strategies}
+
+The strategies are grouped into three main categories. The reference strategies, $1$-Choice and $2$-Choice, define the "performance" bounds.
+
+\subsection{Standard Strategies (Perfect Information)}
+These experiments use real-time, perfect load information (equivalent to $b=1$). The results confirm the theoretical advantage of two choices (2-Choice) over one choice (1-Choice), which reduces the gap.
+
+\begin{table}[H]
+    \centering
+    \caption{Gap Comparison for Standard and $(1+\beta)$-Choice Strategies at $n=10,000$}
+    \label{tab:standard}
+    \begin{tabular}{lc}
+        \toprule
+        Strategy & Average Gap $\bar{G}_{N_{MAX}}$ \\
+        \midrule
+        1-Choice & \num{26.13} \\
+        2-Choice & \num{1.83} \\
+        (1+0.2)-Choice & \num{12.07} \\
+        (1+0.5)-Choice & \num{4.40} \\
+        (1+0.8)-Choice & \num{2.43} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The (1+0.8)-Choice strategy performs very close to the optimal 2-Choice (Gap $\approx 2.43$ 
+vs $1.83$). Conversely, increasing the probability of a random choice, as seen in \textbf{(1
++0.2)-Choice}, causes a worst performance, approaching the $1$-Choice gap.
+
+\subsection{Non updated Information (b-Batched)}
+
+This section examines how delayed load information affects the 2-Choice strategy. The batch size $b$ is the interval after which the load vector is updated.
+
+\begin{table}[H]
+    \centering
+    \caption{Gap Comparison for b-Batched Strategies at $n=10,000$}
+    \label{tab:batched}
+    \begin{tabular}{lc}
+        \toprule
+        Strategy & Average Gap $\bar{G}_{N_{MAX}}$ \\
+        \midrule
+        2-Choice (Standard, $b=1$) & \num{1.83} \\
+        2-Choice ($b=100/M$) & \num{3.30} \\
+        2-Choice ($b=1000/M$) & \num{11.77} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+A small batch size ($b=M$) nearly doubles the gap ($\approx 3.30$). A large batch size 
+($b=10M$) leads to a clear performance degradation (Gap $\approx 11.77$), demonstrating 
+that the benefit of 2-Choice is sensitive to the freshness of the load information.
+
+\subsection{Impact of Partial Information (Binary Query)}
+
+This section evaluates the 2-Choice strategy using only $k$ binary queries to infer load 
+information (median, quartiles).
+
+\begin{table}[H]
+    \centering
+    \caption{Gap Comparison for Binary Query Strategies at $n=10,000$}
+    \label{tab:query}
+    \begin{tabular}{lc}
+        \toprule
+        Strategy & Average Gap $\bar{G}_{N_{MAX}}$ \\
+        \midrule
+        2-Choice (Standard, $k=\infty$) & \num{1.83} \\
+        2-Choice ($k=1$ Query) & \num{6.60} \\
+        2-Choice ($k=2$ Query) & \num{3.73} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The $k=2$ Query strategy, which uses quartiles to better discriminate candidates, provides 
+a good trade-off (Gap $\approx 3.73$). While obviously being worse than perfect knowledge, 
+it is better than the $k=1$ Query strategy (Gap $\approx 6.60$), showing that even a little 
+more information can improve the performance.
+
+\newpage
+
+\section{Graphical Results}
+
+The following figures illustrate the evolution of the average gap ($\bar{G}_n$) for the three
+experimental settings, including the shaded areas, that represent the standard deviation (uncertainty) across $T=30$ runs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/grafico_standard.png}
+    \caption{Gap Evolution in Standard Setting ($T=30$). Shows that 2-Choice is optimal and performance degrades as the probability of random choice (1-Choice) increases.}
+    \label{fig:standard}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/grafico_batched.png}
+    \caption{Gap Evolution in b-Batched Setting ($T=30$). Shows that by increasing the batch size $b$ and so by delaying the information update, we compromise the performance of the 2-Choice strategy.}
+    \label{fig:batched}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{../Plots/grafico_query.png}
+    \caption{Gap Evolution in Binary Query Setting ($T=30$). Shows that 2 Binary Queries provide better results than 1 Query ($k=1$) as they approach the 2-Choice behavior.}
+    \label{fig:query}
+\end{figure}
+
+\end{document}
